@@ -39,58 +39,70 @@ class _EntryState extends State<Entry> {
 
   @override
   Widget build(BuildContext context) {
+    //Load Title Jika Ada
     if (note != null) {
       _defaultTitle = note.title;
     }
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigo,
-        leading: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              Navigator.pop(context, note);
-            }),
-        title: TextField(
-          cursorColor: Colors.white,
-          controller: myTitle..text = _defaultTitle,
-          style: TextStyle(color: Colors.white, fontSize: 20),
-          decoration: InputDecoration(
-              focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white)),
-              enabledBorder: UnderlineInputBorder(borderSide: BorderSide.none)),
-          autocorrect: false,
-        ),
-        actions: [
-          Builder(builder: (BuildContext context) {
-            return IconButton(
-                icon: Icon(Icons.save),
-                tooltip: "Save",
+    return WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.indigo,
+            leading: IconButton(
+                icon: Icon(Icons.close),
                 onPressed: () {
-                  DateTime now = DateTime.now();
-                  String myLastSaved =
-                      DateFormat('d MMM yyyy kk:mm').format(now);
-                  if (this.note != null) {
-                    note = ParseData(this.note.id, myTitle.text,
-                        jsonEncode(myText.document), myLastSaved);
-                  } else {
-                    note = ParseData(null, myTitle.text,
-                        jsonEncode(myText.document), myLastSaved);
-                  }
-                  Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text('Note telah disimpan')));
-                });
-          })
-        ],
-      ),
-      body: Container(
-        child: ZefyrScaffold(
-          child: ZefyrEditor(
-            padding: EdgeInsets.all(16),
-            controller: myText,
-            focusNode: _focusNode,
+                  Navigator.pop(context, note);
+                }),
+            title: TextField(
+              cursorColor: Colors.white,
+              controller: myTitle..text = _defaultTitle,
+              style: TextStyle(color: Colors.white, fontSize: 20),
+              decoration: InputDecoration(
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white)),
+                  enabledBorder:
+                      UnderlineInputBorder(borderSide: BorderSide.none)),
+              autocorrect: false,
+            ),
+            actions: [
+              Builder(builder: (BuildContext context) {
+                return IconButton(
+                    icon: Icon(Icons.save),
+                    tooltip: "Save",
+                    onPressed: () {
+                      DateTime now = DateTime.now();
+                      String myLastSaved =
+                          DateFormat('d MMM yyyy kk:mm').format(now);
+                      if (this.note != null) {
+                        //Note Update
+                        note = ParseData(this.note.id, myTitle.text,
+                            jsonEncode(myText.document), myLastSaved);
+                      } else {
+                        //Create New Note
+                        note = ParseData(null, myTitle.text,
+                            jsonEncode(myText.document), myLastSaved);
+                      }
+                      Scaffold.of(context).showSnackBar(
+                          SnackBar(content: Text('Note telah disimpan')));
+                    });
+              })
+            ],
+          ),
+          body: Container(
+            child: ZefyrScaffold(
+              child: ZefyrEditor(
+                padding: EdgeInsets.all(16),
+                controller: myText,
+                focusNode: _focusNode,
+              ),
+            ),
           ),
         ),
-      ),
-    );
+        onWillPop: _backButton);
+  }
+
+  Future<bool> _backButton() {
+    Navigator.pop(context, note);
+    //Nonaktifkan Back Button Default
+    return Future.value(false);
   }
 }
